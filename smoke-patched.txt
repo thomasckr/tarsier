@@ -1,0 +1,5 @@
+exe: D:\a\ai-agent-dim\ai-agent-dim\tarsier\build\windows\x64\runner\Release\tarsier.exe
+alive after 45 s: True
+databases found: 2
+  C:\Users\runneradmin\AppData\Roaming\chat.dim\tarsier\databases\.dkd\app.db (20480 bytes)
+  C:\Users\runneradmin\AppData\Roaming\chat.dim\tarsier\databases\mkm.db (65536 bytes)

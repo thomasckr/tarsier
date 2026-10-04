@@ -1,0 +1,3 @@
+exe: D:\a\ai-agent-dim\ai-agent-dim\tarsier\build\windows\x64\runner\Release\tarsier.exe
+alive after 45 s: True
+databases found: 0
