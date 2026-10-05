@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:dim_flutter/dim_flutter.dart';
@@ -5,9 +7,30 @@ import 'package:dim_flutter/dim_flutter.dart';
 import 'root.dart';
 import 'views/register.dart';
 
+// ---- diag logging (temporary): write startup checkpoints to a file so a hang
+// can be located without a console. Appended after every startup step.
+File? _diagFile;
+void _diag(String msg) {
+  final line = '${DateTime.now().toIso8601String()}  $msg';
+  debugPrint('DIAG $msg');
+  try {
+    _diagFile ??= () {
+      final base = Platform.environment['APPDATA']
+          ?? Platform.environment['HOME']
+          ?? Directory.systemTemp.path;
+      final dir = Directory('$base/chat.dim/tarsier');
+      dir.createSync(recursive: true);
+      return File('${dir.path}${Platform.pathSeparator}diag.log');
+    }();
+    _diagFile!.writeAsStringSync('$line\n', mode: FileMode.append, flush: true);
+  } catch (_) {}
+}
+
 
 void main() async {
+  _diag('main: entered');
   WidgetsFlutterBinding.ensureInitialized();
+  _diag('main: bindings initialized');
 
   // Set log level
   Log.level = Log.RELEASE;
@@ -32,8 +55,10 @@ void main() async {
   // Check Brightness & Language
   // Load device + package info
   await SysInfo().beforeLaunchApp();
+  _diag('main: SysInfo.beforeLaunchApp done');
   // Launch the app
   launchApp(const _RootRouterPage(), debug: debug);
+  _diag('main: launchApp called');
 }
 
 
@@ -53,15 +78,18 @@ class _RootRouterPageState extends State<_RootRouterPage> with Logging {
   }
 
   Future<void> _handleAppRoute(BuildContext context) async {
+    _diag('route: entered');
     User? user;
     // Check permission: Storage
     bool permitted = await PermissionChecker().checkDatabasePermissions();
+    _diag('route: permission check done, permitted=$permitted');
     if (permitted) {
       // check current user
       logDebug('check current user');
       GlobalVariable shared = GlobalVariable();
+      _diag('route: loading current user ...');
       user = await shared.facebook.currentUser;
-      logInfo('current user: $user');
+      _diag('route: current user loaded -> $user');
     }
     // Launch the app
     if (!context.mounted) {
